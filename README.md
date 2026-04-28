@@ -8,8 +8,7 @@ Tool for systematic collection of publicly visible Google Maps profile metadata 
 
 
 ## ⚠️ Disclaimer
-
-**This tool violates Google's Terms of Service.** Intended exclusively for personal non-commercial research, journalistic investigation, and academic study. Do not use for commercial purposes or mass data harvesting. Users are solely responsible for compliance with local laws. The author assumes no liability for misuse.
+Intended exclusively for personal non-commercial research, journalistic investigation, and academic study. Do not use for commercial purposes or mass data harvesting. Users are solely responsible for compliance with local laws. The author assumes no liability for misuse.
 
 ## Installation
 
