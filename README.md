@@ -2,6 +2,11 @@
 
 Tool for systematic collection of publicly visible Google Maps profile metadata to support research on review moderation practices. Detects and records profiles where Google displays a notice that reviews were removed due to defamation complaints ("Bewertungen aufgrund von Beschwerden wegen Diffamierung entfernt").
 
+![App Screenshot](img/banner.png)
+![App Screenshot](img/middle.png)
+![App Screenshot](img/list.png)
+
+
 ## ⚠️ Disclaimer
 
 **This tool violates Google's Terms of Service.** Intended exclusively for personal non-commercial research, journalistic investigation, and academic study. Do not use for commercial purposes or mass data harvesting. Users are solely responsible for compliance with local laws. The author assumes no liability for misuse.
