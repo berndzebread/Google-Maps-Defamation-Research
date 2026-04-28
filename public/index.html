@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entfernte Bewertungen — Google Maps Datenübersicht</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --paper: #ebe4d4;
+      --ink: #1f1a14;
+      --ink-soft: #5c5247;
+      --rule: #2a221b;
+      --accent: #b8361f;
+      --accent-deep: #7a1f10;
+      --neutral: #8a8275;
+      --grain-opacity: 0.05;
+      --pad: clamp(16px, 5vw, 32px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Fraunces', Georgia, serif;
+      font-optical-sizing: auto;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: var(--grain-opacity);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    .topbar {
+      border-bottom: 1px solid var(--rule);
+      padding: 10px var(--pad);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      gap: 8px;
+    }
+
+    .topbar-date {
+      color: var(--ink-soft);
+    }
+
+    .hero {
+      padding: clamp(40px, 8vw, 80px) var(--pad) clamp(48px, 8vw, 80px);
+      border-bottom: 3px double var(--rule);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(10px, 2.5vw, 12px);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      margin-bottom: clamp(20px, 4vw, 32px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .kicker::before,
+    .kicker::after {
+      content: '';
+      flex: 0 0 40px;
+      height: 1px;
+      background: var(--accent-deep);
+      opacity: 0.4;
+    }
+
+    h1.title {
+      font-family: 'Fraunces', serif;
+      font-weight: 800;
+      font-size: clamp(44px, 11vw, 132px);
+      line-height: 0.9;
+      letter-spacing: -0.035em;
+      margin-bottom: 24px;
+      font-variation-settings: "opsz" 144;
+    }
+
+    h1.title .it {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--accent);
+      display: block;
+    }
+
+    .deck {
+      font-size: clamp(16px, 2.2vw, 21px);
+      line-height: 1.55;
+      max-width: 680px;
+      color: var(--ink-soft);
+      margin-top: clamp(20px, 4vw, 32px);
+    }
+
+    .deck strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .deck a {
+      color: var(--accent-deep);
+      border-bottom: 1px solid currentColor;
+      text-decoration: none;
+    }
+
+    .byline {
+      margin-top: clamp(28px, 5vw, 48px);
+      padding-top: 16px;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    section {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: clamp(48px, 8vw, 80px) var(--pad);
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: clamp(16px, 3vw, 32px);
+      margin-bottom: clamp(32px, 6vw, 56px);
+      align-items: start;
+    }
+
+    @media (max-width: 480px) {
+      .section-head {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .section-num {
+        border-top: 2px solid var(--accent-deep);
+        padding-top: 8px;
+      }
+    }
+
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--accent-deep);
+      padding-top: 10px;
+      border-top: 2px solid var(--accent-deep);
+    }
+
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .section-title em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--accent);
+    }
+
+    .section-sub {
+      margin-top: 14px;
+      font-size: clamp(15px, 2vw, 17px);
+      color: var(--ink-soft);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    .kpi-label sup,
+    .section-sub sup,
+    .row.head sup,
+    .deck sup,
+    .method-card h3 sup {
+      font-size: 0.75em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      border: 1px solid var(--rule);
+    }
+
+    @media (min-width: 900px) {
+      .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .kpi {
+      padding: clamp(20px, 4vw, 32px) clamp(16px, 3vw, 28px);
+      border-right: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      background: var(--paper);
+    }
+
+    @media (max-width: 899px) {
+      .kpi:nth-child(2n) {
+        border-right: none;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .kpi:last-child {
+        border-right: none;
+      }
+    }
+
+    .kpi-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+    }
+
+    .kpi-value {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: clamp(32px, 6vw, 52px);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      word-break: break-all;
+    }
+
+    .kpi-value.accent {
+      color: var(--accent);
+    }
+
+    .kpi-unit {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.4;
+    }
+
+    .ranking-table {
+      display: none;
+    }
+
+    @media (min-width: 800px) {
+      .ranking-table {
+        display: block;
+      }
+
+      .ranking-cards {
+        display: none;
+      }
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 52px 1fr 185px 260px 110px;
+      gap: 20px;
+      padding: 20px 8px;
+      border-bottom: 1px solid rgba(42, 34, 27, 0.12);
+      align-items: center;
+      transition: background 0.15s;
+    }
+
+    .row:hover {
+      background: rgba(184, 54, 31, 0.04);
+    }
+
+    .row.head {
+      border-bottom: 2px solid var(--rule);
+      padding: 10px 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .row.head:hover {
+      background: transparent;
+    }
+
+    .rank {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .name-cell {
+      min-width: 0;
+    }
+
+    .name {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.2;
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .name a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(184, 54, 31, 0.35);
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .name a:hover {
+      color: var(--accent-deep);
+      border-bottom-color: var(--accent-deep);
+    }
+
+    .name-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-soft);
+    }
+
+    .rating-shift {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-family: 'Fraunces', serif;
+      flex-wrap: wrap;
+    }
+
+    .rating-orig {
+      font-weight: 600;
+      font-size: 17px;
+      color: var(--ink-soft);
+      text-decoration: line-through;
+      text-decoration-color: var(--accent);
+      text-decoration-thickness: 2px;
+    }
+
+    .rating-arrow {
+      color: var(--neutral);
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .rating-recalc {
+      font-weight: 700;
+      font-size: 21px;
+      color: var(--accent);
+    }
+
+    .rating-recalc .wc-mark {
+      font-size: 0.55em;
+      color: var(--accent-deep);
+      margin-left: 2px;
+      vertical-align: super;
+      font-weight: 600;
+    }
+
+    .rating-drop {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--accent-deep);
+      margin-top: 3px;
+      font-weight: 600;
+      display: block;
+    }
+
+    .wc-banner {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 14px;
+      align-items: start;
+      background: rgba(184, 54, 31, 0.06);
+      border-left: 3px solid var(--accent);
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--ink-soft);
+    }
+
+    .wc-banner-icon {
+      font-size: 18px;
+      color: var(--accent);
+      font-weight: 700;
+      line-height: 1.2;
+      padding-top: 1px;
+    }
+
+    .wc-banner-text strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .wc-banner-text a {
+      color: var(--accent-deep);
+    }
+
+    .wc-banner sup {
+      font-size: 0.7em;
+    }
+
+    .bar-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .bar-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .bar-label .pct {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .bar-label .pct-range {
+      color: var(--ink-soft);
+      font-size: 9px;
+    }
+
+    .bar-track {
+      height: 7px;
+      background: var(--paper);
+      border-radius: 4px;
+      position: relative;
+      overflow: visible;
+    }
+
+    .bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: var(--accent);
+      border-radius: 4px;
+    }
+
+    .bar-uncert {
+      position: absolute;
+      top: -3px;
+      bottom: -3px;
+      border-left: 1px solid var(--accent-deep);
+      border-right: 1px solid var(--accent-deep);
+      opacity: 0.45;
+    }
+
+    .removed-cell {
+      text-align: right;
+    }
+
+    .removed-num {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 19px;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .removed-of {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+
+    .ranking-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    @media (min-width: 800px) {
+      .ranking-cards {
+        display: none;
+      }
+    }
+
+    .card {
+      border-bottom: 1px solid rgba(42, 34, 27, 0.15);
+      padding: 20px 0;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card-rank {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      padding-top: 4px;
+      flex-shrink: 0;
+      width: 28px;
+    }
+
+    .card-name {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 19px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-name a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(184, 54, 31, 0.35);
+    }
+
+    .card-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+    }
+
+    .card-body {
+      padding-left: 42px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-ratings {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .card-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-bar-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-soft);
+      display: flex;
+      gap: 6px;
+      align-items: baseline;
+    }
+
+    .card-bar-label .pct {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .card-bar-label .pct-range {
+      font-size: 9px;
+    }
+
+    .card-bar-track {
+      height: 6px;
+      background: var(--paper);
+      border-radius: 3px;
+      position: relative;
+      overflow: visible;
+    }
+
+    .card-removed {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-soft);
+    }
+
+    .card-removed strong {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+      margin-right: 4px;
+    }
+
+    .dist-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    @media (min-width: 700px) {
+      .dist-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 56px;
+      }
+    }
+
+    .bracket-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .bracket-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 36px;
+      gap: 12px;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(42, 34, 27, 0.08);
+    }
+
+    .bracket-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .bracket-bar {
+      height: 20px;
+      background: var(--accent);
+      opacity: 0.85;
+    }
+
+    .bracket-bar.deep {
+      background: var(--accent-deep);
+      opacity: 1;
+    }
+
+    .bracket-count {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 19px;
+      color: var(--ink);
+      text-align: right;
+    }
+
+    .donut-wrap {
+      text-align: center;
+    }
+
+    .donut {
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+      text-align: left;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 16px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+    }
+
+    .legend-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+
+    @media (min-width: 600px) {
+      .method-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .method-card {
+      border-left: 2px solid var(--accent);
+      padding: 4px 20px;
+    }
+
+    .method-card.emphasis {
+      border-left-color: var(--ink);
+    }
+
+    .method-card h3 {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 20px;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .method-card h3 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--accent);
+    }
+
+    .method-card p {
+      font-size: 15px;
+      color: var(--ink-soft);
+      line-height: 1.65;
+    }
+
+    #export {
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .export-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: clamp(40px, 6vw, 64px) var(--pad);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(20px, 3vw, 36px);
+      align-items: center;
+    }
+
+    @media (min-width: 800px) {
+      .export-wrap {
+        grid-template-columns: 1fr auto;
+        gap: 48px;
+      }
+    }
+
+    .export-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      margin-bottom: 10px;
+    }
+
+    .export-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: clamp(26px, 3.5vw, 38px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+
+    .export-title em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--accent);
+    }
+
+    .export-sub {
+      font-size: 15px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      max-width: 620px;
+    }
+
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: var(--ink);
+      color: var(--bg);
+      border: 2px solid var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, transform 0.15s;
+      white-space: nowrap;
+    }
+
+    .export-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .export-btn:active {
+      transform: translateY(0);
+    }
+
+    .export-btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .export-btn.success {
+      background: #5a7a4a;
+      border-color: #5a7a4a;
+      color: white;
+    }
+
+    footer {
+      padding: 40px var(--pad) 32px;
+      text-align: center;
+      background: var(--ink);
+      color: var(--bg);
+    }
+
+    footer .mark {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-style: italic;
+      font-size: 28px;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+
+    footer .small {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      line-height: 1.9;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero>* {
+      animation: fadeUp 0.6s ease-out backwards;
+    }
+
+    .hero .kicker {
+      animation-delay: 0.05s;
+    }
+
+    .hero h1.title {
+      animation-delay: 0.15s;
+    }
+
+    .hero .deck {
+      animation-delay: 0.28s;
+    }
+
+    .hero .byline {
+      animation-delay: 0.42s;
+    }
+
+    /* ── Controls bar ── */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+      padding: 14px 18px;
+      background: var(--paper);
+      border: 1px solid rgba(42, 34, 27, 0.15);
+    }
+
+    .controls-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .sort-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ctrl-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 5px 12px;
+      border: 1.5px solid var(--rule);
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .ctrl-btn.active {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .ctrl-btn:hover:not(.active) {
+      background: rgba(42, 34, 27, 0.08);
+    }
+
+    .wc-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--ink-soft);
+      cursor: pointer;
+      margin-left: auto;
+    }
+
+    .wc-toggle input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .wc-toggle.active {
+      color: var(--accent-deep);
+    }
+
+    /* ── WC elements hidden by default ── */
+    .wc-only {
+      display: none;
+    }
+
+    body.show-wc .wc-only {
+      display: block;
+    }
+
+    body.show-wc .wc-banner {
+      display: grid;
+    }
+
+    .wc-banner {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <span>Datenübersicht · Google Maps</span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+
+  <header class="hero">
+    <div class="kicker">Google Maps · Bewertungsübersicht</div>
+    <h1 class="title">Was die Sterne <span class="it">nicht zeigen.</span></h1>
+    <div class="deck">
+      Google blendet auf manchen Profilen einen Hinweis ein, dass Bewertungen aufgrund von
+      Beschwerden wegen Diffamierung entfernt wurden. Diese Übersicht von
+      <strong id="deck-total">—</strong> Orten zeigt,
+      <strong>wo dieser Hinweis erscheint</strong> und wie viele Bewertungen jeweils betroffen sind.
+      Die Rohdaten sind neutral — mögliche Modellberechnungen lassen sich optional einblenden.
+      Einordnung in <a href="#method">§ 04</a>.
+    </div>
+    <div class="byline">
+      <span>öffentliche Profildaten von Google Maps</span>
+      <span id="byline-stamp">—</span>
+    </div>
+  </header>
+
+  <section id="kpi">
+    <div class="section-head">
+      <div class="section-num">§ 01</div>
+      <div>
+        <h2 class="section-title">Die <em>Eckdaten</em>.</h2>
+        <p class="section-sub">Aggregierte Werte über alle untersuchten Profile. Die Spannen ergeben sich daraus, dass
+          Google die Anzahl entfernter Bewertungen nur in Bereichen angibt (z.&nbsp;B. „21 bis 50").</p>
+      </div>
+    </div>
+    <div class="kpi-grid" id="kpi-grid"></div>
+  </section>
+
+  <section id="ranking">
+    <div class="section-head">
+      <div class="section-num">§ 02</div>
+      <div>
+        <h2 class="section-title">Profile mit <em>Lösch-Hinweis</em>.</h2>
+        <p class="section-sub">Alphabetisch gelistete Profile, auf denen Google einen Hinweis zu entfernten Bewertungen
+          ausweist. Sortierung und erweiterte Modellberechnung über die Steuerung unterhalb.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="sort-controls">
+        <span class="controls-label">Sortierung</span>
+        <button id="sort-alpha" class="ctrl-btn active">A–Z</button>
+        <button id="sort-pct" class="ctrl-btn">Nach Anteil ↓</button>
+      </div>
+      <label class="wc-toggle" id="wc-toggle-label">
+        <input type="checkbox" id="wc-toggle-cb">
+        <span>Worst-Case-Modell<sup>*</sup> einblenden</span>
+      </label>
+    </div>
+
+    <div class="wc-banner">
+      <div class="wc-banner-icon">ⓘ</div>
+      <div class="wc-banner-text">
+        <strong>Hinweis zur Worst-Case<sup>*</sup>-Spalte:</strong> Die zweite Sterne-Zahl ist <strong>kein
+          tatsächlicher Wert</strong>, sondern eine hypothetische Modellrechnung — der mathematisch niedrigste denkbare
+        Durchschnitt, falls alle entfernten Bewertungen 1,0 Sterne gewesen wären. Die wahre Wertung liegt zwischen
+        diesem Wert und der angezeigten Wertung. Methodische Begründung in <a href="#method">§ 04</a>.
+      </div>
+    </div>
+
+    <div class="ranking-table">
+      <div class="row head">
+        <div>Nr.</div>
+        <div>Ort</div>
+        <div id="col-rating-head">Bewertung</div>
+        <div>Geschätzter Anteil entfernt</div>
+        <div style="text-align:right;">Entfernt</div>
+      </div>
+      <div id="ranking-rows-table"></div>
+    </div>
+
+    <div class="ranking-cards" id="ranking-cards"></div>
+  </section>
+
+  <section id="dist">
+    <div class="section-head">
+      <div class="section-num">§ 03</div>
+      <div>
+        <h2 class="section-title">Wie sich die <em>Zahlen verteilen</em>.</h2>
+        <p class="section-sub">Links: in welchen Spannen Google die entfernten Bewertungen ausweist. Rechts: wie groß
+          der Anteil der Profile mit Hinweis am Gesamtdatensatz ist.</p>
+      </div>
+    </div>
+    <div class="dist-grid">
+      <div class="bracket-chart" id="bracket-chart"></div>
+      <div class="donut-wrap">
+        <svg class="donut" viewBox="0 0 200 200" id="donut"></svg>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="method">
+    <div class="section-head">
+      <div class="section-num">§ 04</div>
+      <div>
+        <h2 class="section-title">Hinweise zur <em>Einordnung</em>.</h2>
+        <p class="section-sub">Diese Übersicht stellt ausschließlich öffentlich zugängliche Daten dar. Sie enthält keine
+          Tatsachenbehauptungen über einzelne Orte und ist nicht als Werturteil zu verstehen.</p>
+      </div>
+    </div>
+    <div class="method-grid">
+      <div class="method-card">
+        <h3>Datenquelle</h3>
+        <p>Sämtliche Daten stammen von öffentlich abrufbaren Google&#8209;Maps&#8209;Profilen. Erfasst wurde, ob auf der
+          jeweiligen Profilseite der von Google selbst eingeblendete Standardhinweis erscheint, dass Bewertungen
+          aufgrund von Beschwerden wegen Diffamierung entfernt wurden, sowie die von Google ausgewiesene Spanne der
+          entfernten Bewertungen. Es wurden keine Daten erhoben, die nicht für jede Person mit
+          Google&#8209;Maps&#8209;Zugang einsehbar wären.</p>
+      </div>
+      <div class="method-card">
+        <h3>Spannen statt exakter Zahlen</h3>
+        <p>Google nennt die Anzahl entfernter Bewertungen ausschließlich in Bereichen (etwa „21 bis 50"). Daraus ergibt
+          sich eine Unter- und eine Obergrenze. Der dargestellte Anteil basiert auf dem Mittelwert dieser Spanne; die
+          feinen Klammern im Balken markieren die volle Spannweite. Eine genauere Aussage ist mit den von Google
+          bereitgestellten Daten nicht möglich.</p>
+      </div>
+      <div class="method-card emphasis">
+        <h3>Worst-Case&#8209;Modell<sup>*</sup> — was die zweite Sterne-Zahl <em>wirklich</em> bedeutet</h3>
+        <p>Die mit „Worst-Case<sup>*</sup>" bezeichnete Sternewertung ist <strong>kein gemessener oder tatsächlicher
+            Wert</strong>, sondern eine rein <strong>hypothetische Modellrechnung</strong>. Sie beantwortet
+          ausschließlich die Frage: <em>Wie niedrig könnte die durchschnittliche Sternewertung rechnerisch maximal
+            liegen, wenn alle von Google entfernten Bewertungen tatsächlich 1,0&#8209;Stern&#8209;Bewertungen gewesen
+            wären?</em></p>
+        <p style="margin-top:10px;">1,0&nbsp;Stern ist die niedrigste auf Google&nbsp;Maps vergebbare Bewertung und
+          definiert das mathematische Minimum. Der Worst-Case ist die untere Grenze des Intervalls — die obere Grenze
+          ist die aktuell angezeigte Wertung. Der reale Wert liegt zwischen beiden.</p>
+        <p style="margin-top:10px;">Die tatsächlichen Sterne der entfernten Bewertungen sind unbekannt. Es wird
+          ausdrücklich <strong>nicht behauptet</strong>, dass die entfernten Bewertungen tatsächlich
+          1,0&#8209;Stern&#8209;Bewertungen waren.</p>
+      </div>
+      <div class="method-card emphasis">
+        <h3>Was die Zahlen <em>nicht</em> aussagen</h3>
+        <p>Der Lösch-Hinweis allein erlaubt <strong>keinen Rückschluss auf die Qualität</strong> eines Ortes oder auf
+          rechtswidriges Verhalten des Betreibers. Bewertungen können aus berechtigten Gründen entfernt werden — etwa
+          wenn sie tatsächlich diffamierend, gefälscht, von Mitbewerbern platziert oder anderweitig richtlinienwidrig
+          sind. Über die Entfernung entscheidet ausschließlich Google nach eigenen Kriterien.</p>
+        <p style="margin-top:10px;">Diese Übersicht ist eine deskriptive Aufbereitung öffentlich verfügbarer
+          Informationen und stellt keine Bewertung der genannten Betriebe dar.</p>
+      </div>
+      <div class="method-card">
+        <h3>Rechtlicher Rahmen</h3>
+        <p>Die Verarbeitung öffentlich zugänglicher Geschäftsdaten zu Zwecken der statistischen Auswertung ist nach
+          Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO grundsätzlich zulässig. Es werden keine personenbezogenen Daten von
+          Privatpersonen verarbeitet. Die Nennung einzelner Orte erfolgt im Rahmen zulässiger Berichterstattung über
+          deren öffentlich auf Google&nbsp;Maps angezeigte Geschäftsinformationen.</p>
+      </div>
+      <div class="method-card">
+        <h3>Aktualität & Korrekturen</h3>
+        <p>Die Daten geben den Stand des im Footer genannten Datums wieder. Google&#8209;Profile ändern sich laufend;
+          einzelne Werte können zwischenzeitlich überholt sein. Bei sachlichen Unstimmigkeiten kann der Datensatz
+          aktualisiert werden — der Hinweis lässt sich bei Google direkt einsehen und überprüfen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="export">
+    <div class="export-wrap">
+      <div class="export-text">
+        <div class="export-eyebrow">Transparenz</div>
+        <div class="export-title">Datensatz <em>einsehen</em>.</div>
+        <p class="export-sub">Der vollständige Rohdatensatz dieser Übersicht ist als JSON-Datei verfügbar — inklusive
+          aller verbliebenen Bewertungszahlen und der von Google ausgewiesenen Lösch-Spannen. So lassen sich alle
+          Angaben unabhängig nachvollziehen.</p>
+      </div>
+      <button type="button" class="export-btn" id="export-btn">
+        <span class="export-btn-icon">↓</span>
+        <span class="export-btn-label">Datensatz als&nbsp;.json exportieren</span>
+      </button>
+    </div>
+  </section>
+
+  <footer>
+    <div class="mark">Datenübersicht</div>
+    <div class="small">
+      Stand: <span id="footer-date">—</span> · öffentliche Google Maps Profildaten · ohne Gewähr
+    </div>
+  </footer>
+
+  <script>
+    (async function () {
+      /* ── Load data ── */
+      let rawPlaces;
+      try {
+        const res = await fetch('/api/places');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        rawPlaces = await res.json();
+      } catch (e) {
+        document.body.innerHTML = '<div style="padding:60px 24px;font-family:monospace;text-align:center;color:#b8361f;">⚠ Datenfehler:<br><br>' + e.message + '<br><br><small>Server gestartet? → npm run server</small></div>';
+        return;
+      }
+
+      /* ── Compute derived values ── */
+      const places = rawPlaces;
+      const flagged = places.filter(p => p.hasDefamationNotice);
+
+      const enriched = flagged
+        .filter(p => p.totalReviews && p.removedMin !== null && p.removedMax !== null)
+        .map(p => {
+          const pctMin = (p.removedMin / (p.totalReviews + p.removedMin)) * 100;
+          const pctMax = (p.removedMax / (p.totalReviews + p.removedMax)) * 100;
+          const pctMid = (pctMin + pctMax) / 2;
+
+          const avgRemoved = (p.removedMin + p.removedMax) / 2;
+
+          /* Worst-Case: alle entfernten = 1★ */
+          const removedWorst = p.removedMax;
+          const originalTotal = p.totalReviews + removedWorst;
+
+          const recalc = (p.rating !== null)
+            ? ((p.totalReviews * p.rating) + removedWorst) / originalTotal
+            : null;
+
+          return { ...p, pctMin, pctMax, pctMid, avgRemoved, recalc };
+        });
+
+      const fmt = n => Number(n || 0).toLocaleString('de-DE');
+      const fmt1 = n => (Math.round(n * 10) / 10).toFixed(1).replace('.', ',');
+      const fmt2 = n => (Math.round(n * 100) / 100).toFixed(2).replace('.', ',');
+
+      /* ── State ── */
+      const state = { showWC: false, sort: 'alpha' };
+
+      /* ── Date / meta (static) ── */
+      const dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+      document.getElementById('topbar-date').textContent = dateStr;
+      document.getElementById('byline-stamp').textContent = 'Stand: ' + dateStr;
+      document.getElementById('footer-date').textContent = dateStr;
+      document.getElementById('deck-total').textContent = fmt(places.length);
+
+      /* ── Static: distribution charts ── */
+      const totalReviews = places.reduce((a, p) => a + (p.totalReviews || 0), 0);
+      const removedMin = enriched.reduce((a, p) => a + p.removedMin, 0);
+      const removedMax = enriched.reduce((a, p) => a + p.removedMax, 0);
+      const flaggedPct = places.length ? flagged.length / places.length * 100 : 0;
+      const clean = places.length - flagged.length;
+      const flagFrac = places.length ? flagged.length / places.length : 0;
+
+      const brackets = [
+        { label: '1', min: 1, max: 1 },
+        { label: '2–5', min: 2, max: 5 },
+        { label: '6–10', min: 6, max: 10 },
+        { label: '11–20', min: 11, max: 20 },
+        { label: '21–50', min: 21, max: 50 },
+        { label: '51–100', min: 51, max: 100 },
+        { label: '101–150', min: 101, max: 150 },
+        { label: '> 150', min: 151, max: 1e9 },
+      ];
+      const counts = brackets.map(b => enriched.filter(p => p.removedMin === b.min && p.removedMax === b.max).length);
+      const maxCount = Math.max(...counts, 1);
+
+      document.getElementById('bracket-chart').innerHTML = brackets.map((b, i) => {
+        const c = counts[i];
+        return `<div class="bracket-row">
+      <div class="bracket-label">${b.label}</div>
+      <div class="bracket-bar${b.min >= 21 ? ' deep' : ''}" style="width:${c / maxCount * 100}%; min-width:${c > 0 ? '4px' : '0'};"></div>
+      <div class="bracket-count">${c}</div>
+    </div>`;
+      }).join('');
+
+      const r = 70, cx = 100, cy = 100, circ = 2 * Math.PI * r;
+      document.getElementById('donut').innerHTML = `
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d6ccba" stroke-width="26"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="26"
+            stroke-dasharray="${circ * flagFrac} ${circ}" transform="rotate(-90 ${cx} ${cy})"/>
+    <text x="${cx}" y="${cy - 2}" text-anchor="middle" font-family="Fraunces" font-weight="700" font-size="32"
+          fill="var(--ink)" letter-spacing="-1">${fmt1(flagFrac * 100)}%</text>
+    <text x="${cx}" y="${cy + 18}" text-anchor="middle" font-family="JetBrains Mono" font-size="9"
+          fill="var(--ink-soft)" letter-spacing="2">MIT HINWEIS</text>`;
+
+      document.getElementById('donut-legend').innerHTML = `
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:var(--accent);"></span>
+      <span class="legend-label">Profile mit Lösch-Hinweis</span>
+      <span class="legend-val">${flagged.length}</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:#d6ccba;"></span>
+      <span class="legend-label">ohne Hinweis</span>
+      <span class="legend-val">${clean}</span>
+    </div>`;
+
+      /* ── Helpers ── */
+      function esc(s) {
+        return String(s || '').replace(/[&<>"']/g, c =>
+          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      }
+
+      function getSorted() {
+        return state.sort === 'alpha'
+          ? [...enriched].sort((a, b) => a.name.localeCompare(b.name, 'de'))
+          : [...enriched].sort((a, b) => b.pctMid - a.pctMid);
+      }
+
+      /* ── Render (state-dependent) ── */
+      function render() {
+        const showWC = state.showWC;
+        const list = getSorted();
+        const scale = Math.max(...list.map(p => p.pctMax), 1) * 1.05;
+
+        document.body.classList.toggle('show-wc', showWC);
+        document.getElementById('col-rating-head').innerHTML = showWC
+          ? 'Angezeigt → Worst-Case<sup>*</sup>'
+          : 'Bewertung';
+        document.getElementById('wc-toggle-label').classList.toggle('active', showWC);
+
+        /* KPIs */
+        const rated = enriched.filter(p => p.rating !== null && p.recalc !== null);
+        const avgDrop = rated.length ? rated.reduce((a, p) => a + (p.rating - p.recalc), 0) / rated.length : 0;
+        const maxDrop = rated.reduce((a, p) => Math.max(a, p.rating - p.recalc), 0);
+        const kpi4 = showWC
+          ? { label: 'Worst-Case-Differenz<sup>*</sup>', value: '−' + fmt2(avgDrop), unit: 'rechnerisch ⌀, max −' + fmt2(maxDrop), accent: false }
+          : { label: 'Profile ohne Hinweis', value: fmt(clean), unit: 'von ' + fmt(places.length) + ' insgesamt', accent: false };
+
+        document.getElementById('kpi-grid').innerHTML = [
+          { label: 'Untersuchte Orte', value: fmt(places.length), unit: 'Profile insgesamt', accent: false },
+          { label: 'Profile mit Hinweis', value: fmt(flagged.length), unit: 'entspricht ' + fmt1(flaggedPct) + ' %', accent: true },
+          { label: 'Entfernte Bewertungen', value: fmt(removedMin) + '–' + fmt(removedMax), unit: 'aus ' + fmt(totalReviews) + ' verbliebenen', accent: true },
+          kpi4,
+        ].map(k => `<div class="kpi">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value${k.accent ? ' accent' : ''}">${k.value}</div>
+      <div class="kpi-unit">${k.unit}</div>
+    </div>`).join('');
+
+        function barHTML(p, trackClass, fillClass, uncertClass) {
+          return `<div class="${trackClass}">
+        <div class="${fillClass}" style="width:${p.pctMid / scale * 100}%;"></div>
+        <div class="${uncertClass}" style="left:${p.pctMin / scale * 100}%; width:${(p.pctMax - p.pctMin) / scale * 100}%;"></div>
+      </div>`;
+        }
+
+        function ratingCell(p) {
+          if (!showWC) {
+            return p.rating !== null
+              ? `<span style="font-family:'Fraunces',serif;font-weight:600;font-size:18px;">${fmt1(p.rating)}</span>`
+              : `<span style="color:var(--neutral);font-family:'JetBrains Mono',monospace;font-size:12px;">—</span>`;
+          }
+          if (p.rating === null) return `<span style="color:var(--neutral);font-family:'JetBrains Mono',monospace;font-size:12px;">—</span>`;
+          const drop = p.recalc !== null ? p.rating - p.recalc : null;
+          return `<span class="rating-orig">${fmt1(p.rating)}</span>
+        <span class="rating-arrow">→</span>
+        <div>
+          <span class="rating-recalc">${p.recalc !== null ? fmt1(p.recalc) : '—'}<sup class="wc-mark">★</sup></span>
+          ${drop !== null ? `<span class="rating-drop">−${fmt2(drop)} im Worst-Case<sup>*</sup></span>` : ''}
+        </div>`;
+        }
+
+        /* Desktop rows */
+        document.getElementById('ranking-rows-table').innerHTML = list.map((p, i) => {
+          const range = p.removedMin === p.removedMax ? fmt(p.removedMin) : fmt(p.removedMin) + '–' + fmt(p.removedMax);
+          return `<div class="row">
+        <div class="rank">${String(i + 1).padStart(2, '0')}</div>
+        <div class="name-cell">
+          <div class="name">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a>` : esc(p.name)}</div>
+          <div class="name-meta">${fmt(p.totalReviews)} verbliebene Bewertungen</div>
+        </div>
+        <div class="rating-shift">${ratingCell(p)}</div>
+        <div class="bar-cell">
+          <div class="bar-label">
+            <span class="pct">≈ ${fmt1(p.pctMid)} %</span>
+            <span class="pct-range">(${fmt1(p.pctMin)}–${fmt1(p.pctMax)} %)</span>
+          </div>
+          ${barHTML(p, 'bar-track', 'bar-fill', 'bar-uncert')}
+        </div>
+        <div class="removed-cell">
+          <div class="removed-num">${range}</div>
+          <div class="removed-of">Bewertungen</div>
+        </div>
+      </div>`;
+        }).join('');
+
+        /* Mobile cards */
+        document.getElementById('ranking-cards').innerHTML = list.map((p, i) => {
+          const range = p.removedMin === p.removedMax ? fmt(p.removedMin) : fmt(p.removedMin) + '–' + fmt(p.removedMax);
+          return `<div class="card">
+        <div class="card-top">
+          <div class="card-rank">${String(i + 1).padStart(2, '0')}</div>
+          <div>
+            <div class="card-name">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a>` : esc(p.name)}</div>
+            <div class="card-meta">${fmt(p.totalReviews)} verbliebene Bewertungen</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-ratings rating-shift">${ratingCell(p)}</div>
+          <div class="card-bar">
+            <div class="card-bar-label">
+              <span class="pct">≈ ${fmt1(p.pctMid)} %</span>
+              <span class="pct-range">(${fmt1(p.pctMin)}–${fmt1(p.pctMax)} %)</span>
+              <span>entfernt</span>
+            </div>
+            ${barHTML(p, 'card-bar-track bar-track', 'bar-fill', 'bar-uncert')}
+          </div>
+          <div class="card-removed"><strong>${range}</strong> Bewertungen entfernt</div>
+        </div>
+      </div>`;
+        }).join('');
+      }
+
+      /* ── Controls ── */
+      document.getElementById('sort-alpha').addEventListener('click', () => {
+        state.sort = 'alpha';
+        document.getElementById('sort-alpha').classList.add('active');
+        document.getElementById('sort-pct').classList.remove('active');
+        render();
+      });
+      document.getElementById('sort-pct').addEventListener('click', () => {
+        state.sort = 'pct';
+        document.getElementById('sort-pct').classList.add('active');
+        document.getElementById('sort-alpha').classList.remove('active');
+        render();
+      });
+      document.getElementById('wc-toggle-cb').addEventListener('change', e => {
+        state.showWC = e.target.checked;
+        render();
+      });
+
+      /* ── Export button ── */
+      const exportBtn = document.getElementById('export-btn');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', async () => {
+          try {
+            const fresh = await fetch('/api/places').then(r => r.json());
+            const json = JSON.stringify({ timestamp: new Date().toISOString(), places: fresh }, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bewertungen_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 200);
+            const label = exportBtn.querySelector('.export-btn-label');
+            const icon = exportBtn.querySelector('.export-btn-icon');
+            const origLabel = label.textContent, origIcon = icon.textContent;
+            label.textContent = 'Heruntergeladen'; icon.textContent = '✓';
+            exportBtn.classList.add('success');
+            setTimeout(() => { label.textContent = origLabel; icon.textContent = origIcon; exportBtn.classList.remove('success'); }, 1800);
+          } catch (e) { alert('Export fehlgeschlagen: ' + e.message); }
+        });
+      }
+
+      /* ── Initial render ── */
+      render();
+    })();
+  </script>
+</body>
+
+</html>

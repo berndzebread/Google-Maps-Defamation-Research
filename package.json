@@ -1,0 +1,29 @@
+{
+  "name": "gmaps-review-notice-collector",
+  "version": "0.1.0",
+  "description": "Google Maps defamation notice scraper (DE/AT)",
+  "main": "dist/cli.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "tsc && node dist/cli.js",
+    "server": "node server.js",
+    "merge": "tsc && node dist/merge-outputs.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^4.0.0",
+    "chalk": "^5.3.0",
+    "express": "^4.22.1",
+    "node-notifier": "^10.0.1",
+    "ora": "^8.0.0",
+    "playwright": "^1.40.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/node-notifier": "^8.0.5",
+    "typescript": "^5.3.3"
+  }
+}
